@@ -1,3 +1,18 @@
+// Hide all images by default as early as possible
+
+(function injectImageHidingStyle() {
+    const style = document.createElement('style');
+    style.innerHTML = 'img { visibility: hidden !important; filter: blur(20px) !important; }';
+    if (document.head) {
+        document.head.prepend(style);
+    } else if (document.documentElement) {
+        document.documentElement.insertBefore(style, document.documentElement.firstChild);
+    } else {
+        // If neither is available, retry shortly
+        setTimeout(injectImageHidingStyle, 10);
+    }
+})();
+
 // Don't hide page immediately - wait for models to be ready and classification to complete
 let NSFW_detected = false;
 let modelsReady = false;
@@ -84,10 +99,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (response[0]['label'] === 'sfw' || response[0]['label'] === 'SFW') {
                         img.style.visibility = 'visible';
                         img.style.filter = '';
+                        // Remove the global hiding style for this image
+                        img.style.setProperty('visibility', 'visible', 'important');
+                        img.style.setProperty('filter', '', 'important');
                         img.setAttribute('data-nsfw-status', 'sfw');
                     } else {
                         img.style.visibility = 'hidden';
                         img.style.filter = 'blur(20px)';
+                        img.style.setProperty('visibility', 'hidden', 'important');
+                        img.style.setProperty('filter', 'blur(20px)', 'important');
                         img.setAttribute('data-nsfw-status', 'nsfw');
                         let overlay = document.createElement('div');
                         overlay.textContent = 'NSFW Image Blocked';
