@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@xenova/transformers": "^2.0.0",
-    "canvas": "^2.11.2"
+    "canvas": "^2.11.2",
+    "minimatch": "^10.2.2"
   }
 }

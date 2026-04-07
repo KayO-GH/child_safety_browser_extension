@@ -144,23 +144,39 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // Listen for messages from the UI, process it, and send the result back.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('sender', sender)
-    if (message.action === 'classify') {
-        // Run model prediction asynchronously
+    
+    if (message.action === 'checkModelsReady') {
+        // Check if models are ready (have been instantiated)
+        const ready = TextPipelineSingleton.instance !== null && ImagePipelineSingleton.instance !== null;
+        sendResponse({ ready });
+        return true;
+    } else if (message.action === 'classify') {
+        // Run model prediction asynchronously with error handling
         (async function () {
-            // Perform text classification
-            let result = await classify(message.text);
-
-            // Send response back to UI
-            sendResponse(result);
+            try {
+                // Perform text classification
+                let result = await classify(message.text);
+                // Send response back to UI
+                sendResponse(result);
+            } catch (error) {
+                console.error('Text classification error:', error);
+                // Send error response to allow graceful degradation
+                sendResponse({ error: error.message });
+            }
         })();
     } else if (message.action === 'classifyImage') {
-        // Run model prediction asynchronously
+        // Run model prediction asynchronously with error handling
         (async function () {
-            // Perform image classification
-            let result = await classifyImage(message.img_src);
-
-            // Send response back to UI
-            sendResponse(result);
+            try {
+                // Perform image classification
+                let result = await classifyImage(message.img_src);
+                // Send response back to UI
+                sendResponse(result);
+            } catch (error) {
+                console.error('Image classification error:', error);
+                // Send error response to allow graceful degradation
+                sendResponse({ error: error.message });
+            }
         })();
     } else {
         // Ignore messages that are not meant for classification.
