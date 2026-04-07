@@ -43,75 +43,116 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // --- UX improvement: Hide all images by default, reveal after scan ---
-    let imgs = Array.from(document.getElementsByTagName('img'));
-    for (let img of imgs) {
-        // Hide image initially
+
+    // --- Client-side queue for image scanning ---
+    const MAX_CONCURRENT_IMAGE_SCANS = 2; // Tune as needed
+    let imageScanQueue = [];
+    let activeImageScans = 0;
+
+    function processNextImageScan() {
+        if (activeImageScans >= MAX_CONCURRENT_IMAGE_SCANS) return;
+        if (imageScanQueue.length === 0) return;
+        const img = imageScanQueue.shift();
+        if (!img || img.getAttribute('data-nsfw-status') === 'scanned') {
+            processNextImageScan();
+            return;
+        }
+        activeImageScans++;
         img.style.visibility = 'hidden';
         img.style.filter = 'blur(20px)';
         img.setAttribute('data-nsfw-status', 'pending');
-    }
-
-    for (let img of imgs) {
         let img_src = img.src;
-        if (!img_src || img_src.trim() === '') continue;
-
+        if (!img_src || img_src.trim() === '') {
+            activeImageScans--;
+            processNextImageScan();
+            return;
+        }
         chrome.runtime.sendMessage({
             action: 'classifyImage',
             img_src: img_src,
         }, (response) => {
             if (chrome.runtime.lastError) {
-                console.warn('Child Safety Extension: Image classification failed for', img_src, chrome.runtime.lastError);
-                // Show image if scan fails (graceful degradation)
                 img.style.visibility = 'visible';
                 img.style.filter = '';
                 img.setAttribute('data-nsfw-status', 'error');
-                return;
-            }
-            if (!response || !Array.isArray(response) || response.length === 0 || response.error) {
-                console.warn('Child Safety Extension: Invalid image classification response', response);
+            } else if (!response || !Array.isArray(response) || response.length === 0 || response.error) {
                 img.style.visibility = 'visible';
                 img.style.filter = '';
                 img.setAttribute('data-nsfw-status', 'error');
-                return;
-            }
-            try {
-                console.log('Image classification result for', img_src, ':', response);
-                if (response[0]['label'] === 'sfw' || response[0]['label'] === 'SFW') {
-                    // Reveal SFW image
+            } else {
+                try {
+                    if (response[0]['label'] === 'sfw' || response[0]['label'] === 'SFW') {
+                        img.style.visibility = 'visible';
+                        img.style.filter = '';
+                        img.setAttribute('data-nsfw-status', 'sfw');
+                    } else {
+                        img.style.visibility = 'hidden';
+                        img.style.filter = 'blur(20px)';
+                        img.setAttribute('data-nsfw-status', 'nsfw');
+                        let overlay = document.createElement('div');
+                        overlay.textContent = 'NSFW Image Blocked';
+                        overlay.style.position = 'absolute';
+                        overlay.style.left = img.offsetLeft + 'px';
+                        overlay.style.top = img.offsetTop + 'px';
+                        overlay.style.width = img.width + 'px';
+                        overlay.style.height = img.height + 'px';
+                        overlay.style.background = 'rgba(0,0,0,0.7)';
+                        overlay.style.color = 'white';
+                        overlay.style.display = 'flex';
+                        overlay.style.alignItems = 'center';
+                        overlay.style.justifyContent = 'center';
+                        overlay.style.zIndex = 9999;
+                        overlay.style.fontSize = '1.2em';
+                        overlay.className = 'nsfw-image-overlay';
+                        img.parentNode.insertBefore(overlay, img.nextSibling);
+                    }
+                } catch (error) {
                     img.style.visibility = 'visible';
                     img.style.filter = '';
-                    img.setAttribute('data-nsfw-status', 'sfw');
-                } else {
-                    // Hide or overlay NSFW image
-                    img.style.visibility = 'hidden';
-                    img.style.filter = 'blur(20px)';
-                    img.setAttribute('data-nsfw-status', 'nsfw');
-                    // Optionally, overlay a warning
-                    let overlay = document.createElement('div');
-                    overlay.textContent = 'NSFW Image Blocked';
-                    overlay.style.position = 'absolute';
-                    overlay.style.left = img.offsetLeft + 'px';
-                    overlay.style.top = img.offsetTop + 'px';
-                    overlay.style.width = img.width + 'px';
-                    overlay.style.height = img.height + 'px';
-                    overlay.style.background = 'rgba(0,0,0,0.7)';
-                    overlay.style.color = 'white';
-                    overlay.style.display = 'flex';
-                    overlay.style.alignItems = 'center';
-                    overlay.style.justifyContent = 'center';
-                    overlay.style.zIndex = 9999;
-                    overlay.style.fontSize = '1.2em';
-                    overlay.className = 'nsfw-image-overlay';
-                    img.parentNode.insertBefore(overlay, img.nextSibling);
+                    img.setAttribute('data-nsfw-status', 'error');
                 }
-            } catch (error) {
-                console.warn('Child Safety Extension: Error processing image classification result', error);
-                img.style.visibility = 'visible';
-                img.style.filter = '';
-                img.setAttribute('data-nsfw-status', 'error');
             }
+            img.setAttribute('data-nsfw-status', 'scanned');
+            activeImageScans--;
+            processNextImageScan();
         });
     }
+
+    function queueImageForScan(img) {
+        if (!img || img.getAttribute('data-nsfw-status') === 'scanned') return;
+        // Immediately hide and blur the image before queueing
+        img.style.visibility = 'hidden';
+        img.style.filter = 'blur(20px)';
+        img.setAttribute('data-nsfw-status', 'pending');
+        imageScanQueue.push(img);
+        processNextImageScan();
+    }
+
+    // Scan all current images
+    let imgs = Array.from(document.getElementsByTagName('img'));
+    imgs.forEach(queueImageForScan);
+
+    // MutationObserver for lazy-loaded images
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.tagName === 'IMG') {
+                        queueImageForScan(node);
+                    } else if (node.querySelectorAll) {
+                        node.querySelectorAll('img').forEach(queueImageForScan);
+                    }
+                });
+            } else if (mutation.type === 'attributes' && mutation.target.tagName === 'IMG' && mutation.attributeName === 'src') {
+                queueImageForScan(mutation.target);
+            }
+        }
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['src']
+    });
 });
 

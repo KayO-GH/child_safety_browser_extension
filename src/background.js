@@ -142,51 +142,73 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 ////////////////////// 2. Message Events /////////////////////
 // 
 // Listen for messages from the UI, process it, and send the result back.
+// --- Throttling for image classification requests ---
+const MAX_CONCURRENT_IMAGE_JOBS = 2; // Tune this for your performance
+let imageJobQueue = [];
+let activeImageJobs = 0;
+
+function processNextImageJob() {
+    if (imageJobQueue.length === 0 || activeImageJobs >= MAX_CONCURRENT_IMAGE_JOBS) return;
+    const { message, sendResponse } = imageJobQueue.shift();
+    activeImageJobs++;
+    (async function () {
+        try {
+            let result = await classifyImage(message.img_src);
+            sendResponse(result);
+        } catch (error) {
+            console.error('Image classification error:', error);
+            sendResponse({ error: error.message });
+        } finally {
+            activeImageJobs--;
+            processNextImageJob();
+        }
+    })();
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('sender', sender)
-    
+
+    let responded = false;
+    const safeSendResponse = (resp) => {
+        if (!responded) {
+            responded = true;
+            sendResponse(resp);
+        }
+    };
+
     if (message.action === 'checkModelsReady') {
-        // Check if models are ready (have been instantiated)
-        const ready = TextPipelineSingleton.instance !== null && ImagePipelineSingleton.instance !== null;
-        sendResponse({ ready });
+        try {
+            const ready = TextPipelineSingleton.instance !== null && ImagePipelineSingleton.instance !== null;
+            safeSendResponse({ ready });
+        } catch (error) {
+            safeSendResponse({ error: error.message });
+        }
         return true;
     } else if (message.action === 'classify') {
-        // Run model prediction asynchronously with error handling
         (async function () {
             try {
-                // Perform text classification
                 let result = await classify(message.text);
-                // Send response back to UI
-                sendResponse(result);
+                safeSendResponse(result);
             } catch (error) {
                 console.error('Text classification error:', error);
-                // Send error response to allow graceful degradation
-                sendResponse({ error: error.message });
+                safeSendResponse({ error: error.message });
             }
         })();
+        return true;
     } else if (message.action === 'classifyImage') {
-        // Run model prediction asynchronously with error handling
-        (async function () {
-            try {
-                // Perform image classification
-                let result = await classifyImage(message.img_src);
-                // Send response back to UI
-                sendResponse(result);
-            } catch (error) {
-                console.error('Image classification error:', error);
-                // Send error response to allow graceful degradation
-                sendResponse({ error: error.message });
-            }
-        })();
+        // Throttle image jobs
+        imageJobQueue.push({ message, sendResponse: safeSendResponse });
+        processNextImageJob();
+        // Set a timeout in case the job never completes (service worker may be suspended)
+        setTimeout(() => {
+            safeSendResponse({ error: 'Image classification timed out' });
+        }, 15000); // 15 seconds timeout
+        return true;
     } else {
         // Ignore messages that are not meant for classification.
-        return;
+        safeSendResponse({ error: 'Unknown action' });
+        return false;
     }
-
-
-    // return true to indicate we will send a response asynchronously
-    // see https://stackoverflow.com/a/46628145 for more information
-    return true;
 });
 //////////////////////////////////////////////////////////////
 
