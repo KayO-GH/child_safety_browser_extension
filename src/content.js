@@ -96,7 +96,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 img.setAttribute('data-nsfw-status', 'error');
             } else {
                 try {
-                    if (response[0]['label'] === 'sfw' || response[0]['label'] === 'SFW') {
+                    // Detailed logging for debugging
+                    console.log('=== Image Classification Decision ===');
+                    console.log('Image src:', img_src);
+                    console.log('Classification results:', response);
+                    console.log('Top label:', response[0]['label']);
+                    console.log('Confidence score:', (response[0]['score'] * 100).toFixed(2) + '%');
+                    
+                    // IMPORTANT: Use threshold of 0.7 (70%) to reduce false positives
+                    // Only block if NSFW/nsfw label AND confidence > 70%
+                    const NSFW_THRESHOLD = 0.5;
+                    const isSafe = (response[0]['label'] === 'sfw' || response[0]['label'] === 'SFW') || 
+                                   (response[0]['score'] < NSFW_THRESHOLD);
+                    
+                    console.log('Decision:', isSafe ? 'SAFE (showing)' : 'NSFW (blocking)');
+                    console.log('=====================================');
+                    
+                    if (isSafe) {
                         img.style.visibility = 'visible';
                         img.style.filter = '';
                         // Remove the global hiding style for this image
@@ -110,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         img.style.setProperty('filter', 'blur(20px)', 'important');
                         img.setAttribute('data-nsfw-status', 'nsfw');
                         let overlay = document.createElement('div');
-                        overlay.textContent = 'NSFW Image Blocked';
+                        overlay.textContent = `NSFW Image Blocked (${(response[0]['score'] * 100).toFixed(0)}%)`;
                         overlay.style.position = 'absolute';
                         overlay.style.left = img.offsetLeft + 'px';
                         overlay.style.top = img.offsetTop + 'px';
@@ -127,6 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         img.parentNode.insertBefore(overlay, img.nextSibling);
                     }
                 } catch (error) {
+                    console.error('Error processing image classification:', error);
                     img.style.visibility = 'visible';
                     img.style.filter = '';
                     img.setAttribute('data-nsfw-status', 'error');

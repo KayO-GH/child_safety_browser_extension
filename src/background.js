@@ -364,8 +364,14 @@ const classifyImage = async (url) => {
             // console.log('progress', data)
         });
         
-        classificationResults = await model([blobURL]); // Classify the image
-        console.log('Predicted class: ', classificationResults[0].label);
+        classificationResults = await model(blobURL); // Classify the image (don't pass as array)
+        
+        // Detailed logging for debugging
+        console.log('=== Image Classification Results ===');
+        console.log('Image URL:', url);
+        console.log('Full results:', JSON.stringify(classificationResults, null, 2));
+        console.log('Top prediction:', classificationResults[0].label, 'with confidence:', (classificationResults[0].score * 100).toFixed(2) + '%');
+        console.log('===================================');
         
         // Cache the successful result
         imageClassificationCache.set(url, classificationResults);
