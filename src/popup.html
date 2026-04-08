@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transformers.js | Sample Browser Extension</title>
+    <title>Child Safety Browser Extension</title>
 
     <!-- Load styles -->
     <link rel="stylesheet" href="popup.css" />
@@ -13,10 +13,31 @@
 
 <body>
     <div class="container">
-        <h1>Transformers.js</h1>
-        <h2>Run 🤗 Transformers in a Browser Extension!</h2>
-        <input id="text" placeholder="Enter text here">
-        <pre id="output"></pre>
+        <h1>Child Safety Extension</h1>
+        <h2>NSFW Content Detector</h2>
+        
+        <!-- Performance Stats Section -->
+        <div class="status-section">
+            <h3>Status</h3>
+            <p id="backend-status">Backend: Loading...</p>
+            <p id="models-status">Models: Loading...</p>
+        </div>
+        
+        <div class="stats-section">
+            <h3>Performance Statistics</h3>
+            <div id="stats-display">
+                <p>Click "Refresh Stats" to view performance data</p>
+            </div>
+            <button id="refresh-stats">Refresh Stats</button>
+            <button id="clear-cache">Clear Cache</button>
+        </div>
+        
+        <!-- Test Classification Section -->
+        <div class="test-section">
+            <h3>Test Classification</h3>
+            <input id="text" placeholder="Enter text to test...">
+            <pre id="output"></pre>
+        </div>
     </div>
 </body>
 

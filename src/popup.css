@@ -8,43 +8,150 @@
 }
 
 h1 {
-    font-size: 40px;
+    font-size: 32px;
     text-align: center;
     font-weight: 500;
+    margin-bottom: 8px;
 }
 
 h2 {
-    font-size: 20px;
+    font-size: 16px;
     text-align: center;
     font-weight: 400;
     margin-bottom: 16px;
+    color: #666;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 12px 0 8px 0;
+    border-bottom: 2px solid #4285f4;
+    padding-bottom: 4px;
 }
 
 .container {
-    width: 360px;
+    width: 100%;
+    padding: 16px;
 }
 
 html,
 body {
-    min-width: 400px;
-    min-height: 500px;
+    min-width: 500px;
+    min-height: 600px;
 }
 
 body {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    background: #f5f5f5;
+}
+
+/* Status Section */
+.status-section {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-section p {
+    font-size: 14px;
+    margin: 4px 0;
+    color: #333;
+}
+
+/* Stats Section */
+.stats-section {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#stats-display {
+    font-size: 14px;
+    margin: 8px 0;
+    padding: 8px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.stat-group {
+    margin: 8px 0;
+}
+
+.stat-group ul {
+    margin-left: 20px;
+    margin-top: 4px;
+}
+
+.stat-group li {
+    margin: 2px 0;
+    font-size: 13px;
+}
+
+button {
+    padding: 8px 16px;
+    margin: 4px 4px 4px 0;
+    border: none;
+    border-radius: 4px;
+    background: #4285f4;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #3367d6;
+}
+
+button:active {
+    background: #2851a3;
+}
+
+#clear-cache {
+    background: #dc3545;
+}
+
+#clear-cache:hover {
+    background: #c82333;
+}
+
+#clear-cache:active {
+    background: #bd2130;
+}
+
+/* Test Section */
+.test-section {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #text {
     width: 100%;
     padding: 8px;
-    font-size: 20px;
+    font-size: 14px;
     margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 #output {
-    font-size: 20px;
+    font-size: 12px;
     font-family: 'Roboto Mono', monospace;
-    height: 100px;
+    min-height: 80px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
 }
