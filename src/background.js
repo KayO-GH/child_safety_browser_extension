@@ -335,17 +335,46 @@ const classifyImage = async (url) => {
     let classificationResults = null;
     try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to load image');
+        if (!response.ok) {
+            throw new Error(`Failed to load image: HTTP ${response.status}`);
+        }
+
+        // Validate Content-Type header
+        const contentType = response.headers.get('content-type');
+        if (contentType && !contentType.startsWith('image/')) {
+            throw new Error(`Invalid content type: ${contentType} (expected image/*)`);
+        }
 
         const blob = await response.blob();
         
+        // Validate blob size (must be > 0 and reasonable)
+        if (blob.size === 0) {
+            throw new Error('Received empty image data');
+        }
+        if (blob.size > 50 * 1024 * 1024) { // 50MB limit
+            throw new Error('Image too large (> 50MB)');
+        }
+        
+        // Validate blob type
+        if (blob.type && !blob.type.startsWith('image/')) {
+            throw new Error(`Invalid blob type: ${blob.type}`);
+        }
+        
         // More efficient image processing using ImageBitmap
-        const imageBitmap = await createImageBitmap(blob);
+        let imageBitmap;
+        try {
+            imageBitmap = await createImageBitmap(blob);
+        } catch (bitmapError) {
+            throw new Error(`Failed to decode image: ${bitmapError.message}. The image may be corrupted or in an unsupported format.`);
+        }
 
         // Create an offscreen canvas for image processing
         const offscreenCanvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
         const ctx = offscreenCanvas.getContext('2d');
         ctx.drawImage(imageBitmap, 0, 0);
+        
+        // Clean up the ImageBitmap to free memory
+        imageBitmap.close();
 
         // Convert the canvas to a Blob and then to a data URL
         const blobURL = await offscreenCanvas.convertToBlob().then(blob => {
