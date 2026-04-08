@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "extension",
-  "description": "Transformers.js | Sample browser extension",
-  "version": "0.0.1",
+  "name": "Child Safety Extension",
+  "description": "Privacy-first AI-powered child safety extension that detects and filters NSFW/toxic content",
+  "version": "0.1.0",
   "permissions": [
     "activeTab",
     "scripting",
@@ -32,7 +32,7 @@
       "24": "icons/icon.png",
       "32": "icons/icon.png"
     },
-    "default_title": "Transformers.js",
+    "default_title": "Child Safety Extension",
     "default_popup": "popup.html"
   },
   "content_security_policy": {

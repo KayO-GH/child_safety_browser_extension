@@ -1,13 +1,27 @@
 {
-  "name": "extension",
-  "version": "0.0.1",
-  "description": "Transformers.js | Sample browser extension",
+  "name": "child-safety-browser-extension",
+  "version": "0.1.0",
+  "description": "Privacy-first child safety browser extension using on-device AI to detect and filter NSFW/toxic content",
   "scripts": {
     "build": "webpack",
     "dev": "webpack --watch"
   },
   "type": "module",
-  "author": "Xenova",
+  "keywords": [
+    "child-safety",
+    "nsfw-detection",
+    "content-filtering",
+    "transformers.js",
+    "browser-extension",
+    "ai",
+    "machine-learning",
+    "privacy"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KayO-GH/child_safety_browser_extension.git"
+  },
+  "author": "Kwadwo Agyapon-Ntra",
   "license": "MIT",
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
