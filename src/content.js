@@ -2,7 +2,7 @@
 
 (function injectImageHidingStyle() {
     const style = document.createElement('style');
-    style.innerHTML = 'img { visibility: hidden !important; filter: blur(20px) !important; }';
+    style.innerHTML = 'img { visibility: hidden !important; }';
     if (document.head) {
         document.head.prepend(style);
     } else if (document.documentElement) {
@@ -74,7 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         activeImageScans++;
         img.style.visibility = 'hidden';
-        img.style.filter = 'blur(20px)';
         img.setAttribute('data-nsfw-status', 'pending');
         let img_src = img.src;
         if (!img_src || img_src.trim() === '') {
@@ -114,14 +113,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     
                     if (isSafe) {
                         img.style.visibility = 'visible';
-                        img.style.filter = '';
+                        // If confidence is less than 60%, apply slight blur as a warning
+                        const blurFilter = response[0]['score'] < 0.6 ? 'blur(10px)' : '';
+                        img.style.filter = blurFilter;
                         // Remove the global hiding style for this image
                         img.style.setProperty('visibility', 'visible', 'important');
-                        img.style.setProperty('filter', '', 'important');
+                        img.style.setProperty('filter', blurFilter, 'important');
                         img.setAttribute('data-nsfw-status', 'sfw');
                     } else {
                         img.style.visibility = 'hidden';
-                        img.style.filter = 'blur(20px)';
                         img.style.setProperty('visibility', 'hidden', 'important');
                         img.style.setProperty('filter', 'blur(20px)', 'important');
                         img.setAttribute('data-nsfw-status', 'nsfw');
@@ -157,9 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function queueImageForScan(img) {
         if (!img || img.getAttribute('data-nsfw-status') === 'scanned') return;
-        // Immediately hide and blur the image before queueing
+        // Immediately hide the image before queueing
         img.style.visibility = 'hidden';
-        img.style.filter = 'blur(20px)';
         img.setAttribute('data-nsfw-status', 'pending');
         imageScanQueue.push(img);
         processNextImageScan();
