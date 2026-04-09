@@ -125,6 +125,47 @@ env.backends.onnx.wasm.proxy = false;
 
 ---
 
+### Planned Configuration Values (Future Features)
+
+**Icon Detection & Smart Processing** (Planned for `content.js`):
+```javascript
+// Image size thresholds for smart processing
+const ICON_SIZE_THRESHOLD = 50;        // Images smaller than 50x50px treated as icons
+const LARGE_IMAGE_THRESHOLD = 200;     // Images larger than 200px get priority
+const MEDIUM_IMAGE_MIN = 50;           // Medium images: 50-200px
+
+// Processing strategy
+const ICON_BLUR_AMOUNT = 'blur(5px)';  // Light blur for icons (no overlay)
+const NSFW_BLUR_AMOUNT = 'blur(20px)'; // Heavy blur for NSFW content
+
+// Priority queue settings
+const HIGH_PRIORITY_SIZE = 200;        // Process large images first
+const DEFER_ICON_CLASSIFICATION = true; // Skip ML classification for tiny icons
+```
+
+**Firestore URL Blacklist** (Planned for `background.js`):
+```javascript
+// Firestore configuration
+const FIRESTORE_PROJECT_ID = 'your-project-id';
+const BLACKLIST_COLLECTION = 'dangerous_urls';
+const BLACKLIST_SYNC_INTERVAL = 60 * 60 * 1000;  // Sync every hour
+const BLACKLIST_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// Online list sources for seeding
+const PHISHTANK_API = 'https://data.phishtank.com/data/...';
+const OPENPHISH_FEED = 'https://openphish.com/feed.txt';
+```
+
+**Video Classification** (Planned):
+```javascript
+// Video processing configuration
+const VIDEO_FRAME_SAMPLE_RATE = 2;     // Sample every 2 seconds
+const VIDEO_MAX_FRAMES = 10;           // Max frames to classify per video
+const VIDEO_THUMBNAIL_CHECK = true;    // Always check video thumbnails
+```
+
+---
+
 ## 📋 Common Tasks
 
 ### Adding a New Model

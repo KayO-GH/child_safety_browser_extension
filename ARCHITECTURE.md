@@ -442,17 +442,42 @@ if (!response || response.error) {
 ## 🔮 Future Architecture Enhancements
 
 ### Planned Improvements
-1. **Web Workers**: Offload processing from main thread
-2. **Model Quantization**: Reduce model sizes with int8/int4
-3. **Batch Processing**: Process multiple images in one inference
-4. **Smart Caching**: Cache based on domain reputation
-5. **Settings Storage**: chrome.storage.sync for user preferences
+1. **Firestore URL Blacklist Integration**: 
+   - Cloud-based dangerous URL database
+   - Real-time sync from curated online lists
+   - Offline-first architecture with local caching
+   - Admin API for blacklist management
+   
+2. **Video Classification Pipeline**:
+   - Frame extraction and sampling
+   - Video thumbnail NSFW detection
+   - Embedded video support (YouTube, Vimeo, etc.)
+   - Live streaming content monitoring
+   
+3. **Intelligent Image Processing**:
+   - **Priority queue**: Process larger images first (likely content), defer small images (likely icons)
+   - **Smart icon detection**: Detect images below threshold (e.g., 50x50px) and apply blur-only (no overlay)
+   - **Size-based strategy**: 
+     - Large images (>200px): Full classification + overlay if NSFW
+     - Medium images (50-200px): Standard classification
+     - Small images (<50px): Blur-only, skip classification
+   
+4. **Web Workers**: Offload processing from main thread
+
+5. **Model Quantization**: Reduce model sizes with int8/int4
+
+6. **Batch Processing**: Process multiple images in one inference
+
+7. **Smart Caching**: Cache based on domain reputation
+
+8. **Settings Storage**: chrome.storage.sync for user preferences
 
 ### Scalability Considerations
 - Consider moving to side panel API for richer UI
 - Implement background page for persistent state
 - Add telemetry (privacy-preserving) for model tuning
 - Support multiple user profiles
+- Firestore integration for cross-device blacklist sync
 
 ---
 
@@ -470,6 +495,10 @@ if (!response || response.error) {
 - **Content Scripts**: Page injection
 - **IndexedDB**: Persistent storage
 - **OffscreenCanvas**: Image processing
+
+### Cloud Services (Planned)
+- **Firebase Firestore**: Cloud-based URL blacklist database
+- **Firestore Offline Persistence**: Local caching for offline access
 
 ### Build Tools
 - **Webpack 5**: Module bundling

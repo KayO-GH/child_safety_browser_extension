@@ -71,22 +71,40 @@ Build a privacy-first child safety browser extension that:
   - Password protection
   - Activity logs/reports
 
+- [ ] **URL Blacklist Database (Firestore)**
+  - Firestore integration for cloud-based URL blacklist
+  - Import/sync from existing online dangerous URL lists
+  - Real-time updates to blacklist database
+  - Offline caching of blacklist for performance
+  - Admin tools for managing blacklist entries
+
 - [ ] **Improved User Feedback**
   - Loading indicators while models load
   - Toast notifications for blocked content
   - Option to review/unblock false positives
   - Child-friendly UI when content is blocked
 
-- [ ] **Better Image Handling**
-  - Progressive image reveal (scan before show)
-  - Handle dynamically loaded images (lazy loading)
-  - Support for background images in CSS
+- [ ] **Video Classification**
+  - Video content analysis and NSFW detection
+  - Frame extraction and sampling for classification
   - Video thumbnail scanning
+  - Support for embedded videos (YouTube, Vimeo, etc.)
+  - Live streaming content monitoring
 
-### Medium Priority
 - [ ] **Additional Classification Models**
   - Hate speech detection
   - Violence detection
+  - Age-inappropriate content categories
+  - Multilingual support
+
+- [ ] **Performance Enhancements**
+  - **Intelligent image processing order**: Prioritize larger images first, defer small icons
+  - **Smart icon handling**: Auto-detect icons by size, apply blur instead of overlay
+  - Batch processing for multiple images
+  - Web Worker for offloading processing
+  - Model quantization for smaller file sizes
+  - Smart caching based on domain reputation
+  - Adaptive processing based on available resources
   - Age-inappropriate content categories
   - Multilingual support
 

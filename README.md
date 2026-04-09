@@ -263,16 +263,20 @@ See [PROGRESS.md](PROGRESS.md) for comprehensive issue tracking.
 
 ### Coming Soon
 - [ ] Parental controls dashboard with password protection
-- [ ] Whitelist/blacklist URL management
+- [ ] **Firestore URL blacklist integration** - Cloud-based dangerous URL database with offline caching
+- [ ] Whitelist/blacklist URL management with import from online threat lists
 - [ ] Activity logs and reports
 - [ ] Loading indicators and better user feedback
 - [ ] Handle dynamically loaded images (infinite scroll, lazy loading)
+- [ ] **Intelligent image processing** - Priority-based processing (large images first, smart icon handling)
 
 ### Future Enhancements
+- [ ] **Video classification** - NSFW detection for video content and thumbnails
 - [ ] Additional models (hate speech, violence detection)
 - [ ] Multilingual support
 - [ ] Multiple user profiles
 - [ ] Browser sync for settings
+- [ ] Performance optimizations (batch processing, Web Workers)
 
 See [PROGRESS.md](PROGRESS.md) for detailed roadmap.
 
