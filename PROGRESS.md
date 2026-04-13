@@ -65,6 +65,13 @@ Build a privacy-first child safety browser extension that:
 ## 📋 TODO / Future Enhancements
 
 ### High Priority
+- [ ] **CSAM Detection & Sextortion Prevention**
+  - Develop models and pipelines to detect Child Sexual Abuse Material (CSAM)
+  - Integrate detection for sextortion attempts, especially in chat and social media contexts
+  - Use case: flagging suspicious conversations or media in real-time
+  - Privacy-first: all detection runs locally, no data leaves the browser
+  - Parental/guardian notification and reporting options (future)
+
 - [ ] **Parental Controls Dashboard**
   - Settings page for adjusting sensitivity
   - Whitelist/blacklist URL management
